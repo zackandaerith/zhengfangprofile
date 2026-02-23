@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>John Fang — Product & Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #c8a96e;
+    --accent2: #7eb8c8;
+    --text: #e8e3da;
+    --muted: #5a5550;
+    --subtle: #2a2520;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 3rem 4rem 3rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 380px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 3rem;
+    display: flex;
+    gap: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-ghost {
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--muted);
+    color: var(--text);
+    background: transparent;
+  }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-right::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(200,169,110,0.08) 0%, transparent 70%);
+    z-index: 1;
+  }
+
+  .hero-geo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    height: 380px;
+    border: 1px solid rgba(200,169,110,0.15);
+    border-radius: 50%;
+    animation: rotate 30s linear infinite;
+  }
+
+  .hero-geo::before {
+    content: '';
+    position: absolute;
+    inset: 30px;
+    border: 1px solid rgba(200,169,110,0.08);
+    border-radius: 50%;
+    animation: rotate 20s linear infinite reverse;
+  }
+
+  .hero-geo::after {
+    content: '';
+    position: absolute;
+    inset: 60px;
+    border: 1px solid rgba(126,184,200,0.1);
+    border-radius: 50%;
+  }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 4rem;
+    left: 3rem;
+    display: flex;
+    gap: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .stat-item {}
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  /* SECTION BASE */
+  section {
+    padding: 7rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    margin-bottom: 3rem;
+    line-height: 1.2;
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* EXPERIENCE */
+  .exp-grid {
+    display: grid;
+    gap: 0;
+  }
+
+  .exp-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .exp-item:hover {
+    background: rgba(200,169,110,0.02);
+  }
+
+  .exp-meta {}
+
+  .exp-company {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  .exp-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .exp-content {}
+
+  .exp-role {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .exp-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .exp-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .exp-bullets li {
+    font-size: 0.85rem;
+    color: #7a7570;
+    line-height: 1.6;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .exp-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    opacity: 0.4;
+  }
+
+  /* SKILLS */
+  .skills-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skills-section > div {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 7rem 3rem;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .skill-card {
+    border: 1px solid var(--border);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .skill-card:hover {
+    border-color: rgba(200,169,110,0.3);
+  }
+
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .skill-card:hover::before { opacity: 1; }
+
+  .skill-card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .skill-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .skill-tag:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  /* EDUCATION */
+  .edu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .edu-card {
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .edu-card:hover { border-color: rgba(200,169,110,0.3); }
+
+  .edu-school {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .edu-degree {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .edu-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* CONTACT */
+  .contact-section {
+    text-align: center;
+    padding: 8rem 3rem;
+  }
+
+  .contact-email {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-style: italic;
+    color: var(--accent);
+    text-decoration: none;
+    display: block;
+    margin: 2rem 0;
+    transition: opacity 0.3s;
+  }
+
+  .contact-email:hover { opacity: 0.7; }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .contact-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .contact-links a:hover { color: var(--accent); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  footer span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 6rem 1.5rem 4rem; }
+    section { padding: 4rem 1.5rem; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .edu-grid { grid-template-columns: 1fr; }
+    .hero-stats { left: 1.5rem; gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">John Fang</div>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">Product · Strategy · Operations</p>
+    <h1 class="hero-name">John<br><em>Fang</em></h1>
+    <p class="hero-desc">
+      Customer experience leader and engineer bridging technical complexity with human-centered strategy. Based in Waltham, MA.
+    </p>
+    <div class="hero-cta">
+      <a href="#experience" class="btn">View Work</a>
+      <a href="mailto:john.fang0626@icloud.com" class="btn btn-ghost">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-geo"></div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">10+</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">80%</div>
+      <div class="stat-label">Engagement Lift</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">98%</div>
+      <div class="stat-label">NPS Achieved</div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="reveal">
+    <p class="section-label">Career</p>
+    <h2 class="section-title">Work Experience</h2>
+  </div>
+  <div class="exp-grid">
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Apple</div>
+        <div class="exp-period">Jan 2024 — Jan 2026</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Customer Experience & Strategy Lead</div>
+        <div class="exp-location">Chestnut Hill, MA</div>
+        <ul class="exp-bullets">
+          <li>Orchestrated technical 'stage/gate' workshops for enterprise hardware launches, utilizing Lean methodologies to improve deployment engagement by 80%</li>
+          <li>Led cross-functional teams to translate complex hardware requirements into scalable solutions, resolving technical bottlenecks and increasing adoption by 23%</li>
+          <li>Applied Lean principles to identify waste and variation in operational processes, improving throughput and on-time delivery</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Apple</div>
+        <div class="exp-period">Apr 2023 — Jan 2024</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Sales & Performance Coach</div>
+        <div class="exp-location">Boston, MA</div>
+        <ul class="exp-bullets">
+          <li>Directed data-driven performance audits implementing PFMEA risk management strategies, improving market performance by 5 positions</li>
+          <li>Facilitated technical mentorship on new product ecosystems, ensuring team proficiency in hardware troubleshooting</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Apple</div>
+        <div class="exp-period">Jul 2022 — Apr 2023</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Client Solutions Advisor</div>
+        <div class="exp-location">Boston, MA</div>
+        <ul class="exp-bullets">
+          <li>Leveraged Agile feedback loops to assess customer requirements and design tailored solutions, achieving 98% quarterly NPS</li>
+          <li>Led solution demonstrations and guided clients through technology onboarding, building long-term partnerships</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Northeastern University</div>
+        <div class="exp-period">May 2020 — Dec 2021</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Research Assistant — D'Amore-McKim School of Business</div>
+        <div class="exp-location">Boston, MA</div>
+        <ul class="exp-bullets">
+          <li>Designed and deployed a scalable operations platform using Microsoft Power Platform, improving productivity by 40%</li>
+          <li>Led stakeholder presentations showcasing solutions that reduced bottlenecks and improved data accuracy by 13%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">North Dakota State</div>
+        <div class="exp-period">Sep 2015 — May 2018</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Research Assistant — Mechanical Engineering</div>
+        <div class="exp-location">Fargo, ND</div>
+        <ul class="exp-bullets">
+          <li>Designed and prototyped nanofiber force-spinning devices using PTC Creo and Rhino, improving testing accuracy by 33%</li>
+          <li>Conducted FEM fracture analysis and built a backpropagation ML algorithm for predictive data visualization</li>
+          <li>Developed Python/R data pipelines for real-time analytics and built a centralized SQL database reducing retrieval time by 30%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Massman Automation</div>
+        <div class="exp-period">Jan 2015 — Sep 2015</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Project Manager Intern</div>
+        <div class="exp-location">Villard, MN</div>
+        <ul class="exp-bullets">
+          <li>Led a cross-disciplinary team using Waterfall methodology to design an automated packaging system, cutting operational expenses by 30% and production time by 15%</li>
+          <li>Conducted A/B testing and user research, improving customer satisfaction by 25%</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<div class="skills-section">
+  <div>
+    <div class="reveal">
+      <p class="section-label">Capabilities</p>
+      <h2 class="section-title">Skills & Tools</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Product Management</div>
+        <div class="skill-tags">
+          <span class="skill-tag">GTM Strategy</span>
+          <span class="skill-tag">PLM</span>
+          <span class="skill-tag">CJM</span>
+          <span class="skill-tag">PRDs</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Technical</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">Java</span>
+          <span class="skill-tag">SQL</span>
+          <span class="skill-tag">R</span>
+          <span class="skill-tag">Matlab</span>
+          <span class="skill-tag">CNC</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Tools</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Salesforce</span>
+          <span class="skill-tag">JIRA</span>
+          <span class="skill-tag">Tableau</span>
+          <span class="skill-tag">Dynamics 365</span>
+          <span class="skill-tag">CAD</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Methodologies</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Agile</span>
+          <span class="skill-tag">Lean</span>
+          <span class="skill-tag">Six Sigma</span>
+          <span class="skill-tag">A/B Testing</span>
+          <span class="skill-tag">8D</span>
+          <span class="skill-tag">PFMEA</span>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
+      <div style="padding:1rem 1.5rem; border:1px solid rgba(200,169,110,0.3); background:rgba(200,169,110,0.05);">
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:0.3rem;">Certifications</div>
+        <div style="font-size:0.85rem;color:var(--muted);">Lean Green Belt · Six Sigma Green Belt · PMP (In Progress)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="reveal">
+    <p class="section-label">Academic</p>
+    <h2 class="section-title">Education</h2>
+  </div>
+  <div class="edu-grid">
+    <div class="edu-card reveal">
+      <div class="edu-school">Northeastern University</div>
+      <div class="edu-degree">M.S. in Computer Systems Engineering</div>
+      <div class="edu-location">Boston, MA</div>
+    </div>
+    <div class="edu-card reveal">
+      <div class="edu-school">North Dakota State University</div>
+      <div class="edu-degree">M.S. in Mechanical Engineering</div>
+      <div class="edu-degree" style="margin-top:0.3rem">B.S. in Industrial & Manufacturing Engineering</div>
+      <div class="edu-location">Fargo, ND</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section">
+  <div class="reveal">
+    <p class="section-label">Let's Connect</p>
+    <h2 class="section-title">Get in Touch</h2>
+    <a href="mailto:john.fang0626@icloud.com" class="contact-email">john.fang0626@icloud.com</a>
+    <div class="contact-links">
+      <a href="https://www.linkedin.com/in/zheng-fang-johon/" target="_blank">LinkedIn</a>
+      <a href="tel:7019361040">701-936-1040</a>
+      <a href="#">Waltham, MA 02451</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 John Fang</span>
+  <span>Product · Strategy · Engineering</span>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
